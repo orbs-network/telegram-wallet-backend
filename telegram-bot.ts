@@ -16,7 +16,7 @@ export function initBot() {
           [
             {
               text: "Open 👋",
-              web_app: { url: "https://4182-77-102-81-167.ngrok-free.app" },
+              web_app: { url: "https://27c4-77-102-81-167.ngrok-free.app" },
             },
           ],
         ],
@@ -26,6 +26,7 @@ export function initBot() {
 }
 
 export const verifyTgMiddleware = (req: any, res: any, next: any) => {
+  console.log(req.body.queryData);
   if (!verifyData(token!, req.body.queryData)) {
     res.sendStatus(400);
     console.log(JSON.stringify(req.body));
@@ -33,6 +34,6 @@ export const verifyTgMiddleware = (req: any, res: any, next: any) => {
   }
   req.tgUserId = JSON.parse(
     new URLSearchParams(req.body.queryData).get("user")!
-  ).id;
+  ).id?.toString();
   next();
 };

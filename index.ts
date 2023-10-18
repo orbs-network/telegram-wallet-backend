@@ -8,6 +8,7 @@ import { DiskStorage } from "./DiskStorage";
 import { MemoryStorage } from "./MemoryStorage";
 import { erc20, erc20sData } from "@defi.org/web3-candies";
 import Web3 from "web3";
+import { TempWeb3Provider } from "./web3-provider-temp";
 const debug = require("debug")("wallet-backend:server");
 
 initBot();
@@ -36,29 +37,37 @@ Client monitors balance, and when confirmed it initiates the MATIC top up agains
 
 */
 
-app.post("/topUp", verifyTgMiddleware, (req: any, res: any) => {
+app.post("/topUp", verifyTgMiddleware, async (req: any, res: any) => {
   console.log("received verified message by userid", req.tgUserId);
-
+  await faucet.sendMatic(req.body.toAddress, req.body.erc20Token, req.tgUserId);
   res.end();
 });
 
-const address = "0x9Fa74a0D31ee751b657e12927E8c2F0Ac825A9BF"; //new Web3().eth.accounts.create().address;
+const recipientAddress = "0x3552115aFFd2D60559089D09585c0EE04697aE07"; //new Web3().eth.accounts.create().address;
 
-debug(`recipient: ${address}`);
+debug(`recipient: ${recipientAddress}`);
 debug(`faucet address: ${web3Provider.account.address}`);
 
-(async () => {
-  erc20("", "0x0FA8781a83E46826621b3BC094Ea2A0212e71B23")
-    .methods.transfer(address, "10000")
-    .send({ from: web3Provider.account.address });
-})();
+const tempWeb3Provider = new TempWeb3Provider(
+  web3Provider.web3,
+  web3Provider.account
+);
 
 if (process.env.NODE_ENV === "development") {
+  app.get("/usdc", async (req: any, res: any) => {
+    await tempWeb3Provider.transfer(
+      "0x0FA8781a83E46826621b3BC094Ea2A0212e71B23",
+      req.query.address,
+      "10000"
+    );
+    res.end();
+  });
+
   app.get("/topUpNoAuth", async (req: any, res: any) => {
     await faucet.sendMatic(
-      address,
+      req.query.address,
       "0x0FA8781a83E46826621b3BC094Ea2A0212e71B23",
-      "myTest"
+      `Nottg:${req.query.address}`
     );
     res.end();
   });

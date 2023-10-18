@@ -21,7 +21,7 @@ export interface Storage {
 type AccountInfo = {
   address: string;
   tgUserId: string;
-  topupStatus: "not_started" | "pending" | "completed";
+  topupStatus: "not_started" | "completed";
   lastTopupDate: number | null;
 };
 
@@ -41,8 +41,10 @@ export class Faucet {
     erc20TokenAddressForProof: string,
     tgUserId: string
   ) {
-    if (!!(await this.lockManager.read(tgUserId))?.lock) return;
+    if (!!(await this.lockManager.read(tgUserId))?.lock)
+      throw new Error("already in progress for this user");
 
+    // TODO obviously wouldn't work with multiple users
     try {
       await this.lockManager.storeProp(tgUserId, "lock", "true");
 
@@ -67,9 +69,6 @@ export class Faucet {
       switch (userDetails.topupStatus) {
         case "not_started":
           break;
-        case "pending":
-          throw new Error("Topup already in progress");
-        // TODO if X time has passed since, retry?
         case "completed":
           throw new Error("Topup already completed");
         default:
@@ -79,7 +78,6 @@ export class Faucet {
       if (!(await this.web3Provider.isEOABalanceEmpty(toAddress)))
         throw new Error("EOA already has MATIC");
 
-      // TODO verify token against top-100 allowed list
       if (
         !(await this.web3Provider.hasErc20Balance(
           toAddress,
@@ -88,13 +86,12 @@ export class Faucet {
       )
         throw new Error("EOA does not have balance of an ERC20 token");
 
-      await this.persistence.storeProp(toAddress, "topupStatus", "pending");
-      await this.persistence.storeProp(toAddress, "lastTopupDate", Date.now());
+      await this.persistence.storeProp(tgUserId, "lastTopupDate", Date.now());
       const txid = await this.web3Provider.transferToEOA(
         toAddress,
         MATIC_TO_SEND
       );
-      await this.persistence.storeProp(toAddress, "topupStatus", "completed");
+      await this.persistence.storeProp(tgUserId, "topupStatus", "completed");
 
       return txid;
     } finally {
