@@ -1,14 +1,13 @@
 import { config } from "dotenv";
 config();
-import { initBot, verifyTgMiddleware } from "./telegram-bot";
+import { initBot } from "./src/telegram-bot";
+import { tgAuthMiddleware } from "./src/utils/tg-auth-middleware";
 import express from "express";
-import { Web3Provider } from "./Web3Provider";
-import { Faucet } from "./faucet";
-import { DiskStorage } from "./DiskStorage";
-import { MemoryStorage } from "./MemoryStorage";
-import { erc20, erc20sData } from "@defi.org/web3-candies";
-import Web3 from "web3";
-import { TempWeb3Provider } from "./web3-provider-temp";
+import { Web3Provider } from "./src/web3-provider";
+import { Faucet } from "./src/faucet";
+import { DiskStorage } from "./src/storage/disk-storage";
+import { MemoryStorage } from "./src/storage/memory-storage";
+import { TempWeb3Provider } from "./src/web3-provider-temp";
 const debug = require("debug")("wallet-backend:server");
 
 initBot();
@@ -20,33 +19,25 @@ app.use(express.json());
 const port = 3000;
 
 const web3Provider = new Web3Provider(
-  `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
+  `${process.env.ALCHEMY_URL}/${process.env.ALCHEMY_API_KEY}`,
   process.env.FAUCET_PRIVATE_KEY!
 );
 
 const faucet = new Faucet(web3Provider, new DiskStorage(), new MemoryStorage());
 
-/*
-
-Flow:
-- Topup from credit card - any token (usdc, dai, etc)
-- Sent from polygon - any token
-- Sent from ethereum - any token
-
-Client monitors balance, and when confirmed it initiates the MATIC top up against the backend
-
-*/
-
-app.post("/topUp", verifyTgMiddleware, async (req: any, res: any) => {
-  console.log("received verified message by userid", req.tgUserId);
-  await faucet.sendMatic(req.body.toAddress, req.body.erc20Token, req.tgUserId);
-  res.end();
+app.post("/topUp", tgAuthMiddleware, async (req: any, res: any, next: any) => {
+  try {
+    console.log("received verified message by userid", req.tgUserId);
+    await faucet.sendMatic(
+      req.body.toAddress,
+      req.body.erc20Token,
+      req.tgUserId
+    );
+    res.end();
+  } catch (e) {
+    next(e);
+  }
 });
-
-const recipientAddress = "0x3552115aFFd2D60559089D09585c0EE04697aE07"; //new Web3().eth.accounts.create().address;
-
-debug(`recipient: ${recipientAddress}`);
-debug(`faucet address: ${web3Provider.account.address}`);
 
 const tempWeb3Provider = new TempWeb3Provider(
   web3Provider.web3,
@@ -62,17 +53,16 @@ if (process.env.NODE_ENV === "development") {
     );
     res.end();
   });
-
-  app.get("/topUpNoAuth", async (req: any, res: any) => {
-    await faucet.sendMatic(
-      req.query.address,
-      "0x0FA8781a83E46826621b3BC094Ea2A0212e71B23",
-      `Nottg:${req.query.address}`
-    );
-    res.end();
-  });
 }
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  debug(`Wallet backend listening on port ${port}`);
+  debug(`ALCHEMY_URL: ${process.env.ALCHEMY_URL}`);
+  debug(`SKIP_TG_AUTH: ${process.env.SKIP_TG_AUTH}`);
+  debug(`WEBAPP_URL: ${process.env.WEBAPP_URL}`);
+  debug(`NODE_ENV: ${process.env.NODE_ENV}`);
+});
+
+app.use((err: Error, req: any, res: any, next: any) => {
+  res.status(500).send(err.toString());
 });

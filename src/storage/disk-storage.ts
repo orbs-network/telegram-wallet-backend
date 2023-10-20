@@ -1,4 +1,4 @@
-import { Storage } from "./faucet";
+import { Storage } from "./storage";
 import storage from "node-persist";
 
 export class DiskStorage implements Storage {

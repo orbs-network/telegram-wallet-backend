@@ -24,6 +24,7 @@ import { estimateGasPrice } from "./utils/estimate-gas-price";
 import { Web3Account } from "web3-eth-accounts";
 type BNComparable = BN | string | number;
 
+// TODO remove this once we close the USDC faucet
 export class TempWeb3Provider {
   constructor(private web3: Web3, public account: Web3Account) {
     setWeb3Instance(this.web3);

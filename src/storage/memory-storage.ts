@@ -1,4 +1,4 @@
-import { Storage } from "./faucet";
+import { Storage } from "./storage";
 
 const storage: Record<string, any> = {};
 
