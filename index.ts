@@ -25,6 +25,10 @@ const web3Provider = new Web3Provider(
 
 const faucet = new Faucet(web3Provider, new DiskStorage(), new MemoryStorage());
 
+app.get("/hc", (req: any, res: any) => {
+  res.send("OK");
+});
+
 app.post("/topUp", tgAuthMiddleware, async (req: any, res: any, next: any) => {
   try {
     console.log("received verified message by userid", req.tgUserId);
