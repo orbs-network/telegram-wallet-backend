@@ -11,7 +11,7 @@
     "web3": "^4.1.2"
   },
   "scripts": {
-    "start": "ts-node index.js"
+    "start": "ts-node index.ts"
   },
   "devDependencies": {
     "@types/debug": "^4.1.9",
