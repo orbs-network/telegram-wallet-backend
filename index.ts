@@ -16,8 +16,6 @@ const app = express();
 app.use(require("cors")());
 app.use(express.json());
 
-const port = 3000;
-
 const web3Provider = new Web3Provider(
   `${process.env.ALCHEMY_URL}/${process.env.ALCHEMY_API_KEY}`,
   process.env.FAUCET_PRIVATE_KEY!
@@ -59,7 +57,7 @@ if (process.env.NODE_ENV === "development") {
   });
 }
 
-app.listen(port, () => {
+app.listen(process.env.PORT ?? 3000, () => {
   debug(`Wallet backend listening on port ${port}`);
   debug(`ALCHEMY_URL: ${process.env.ALCHEMY_URL}`);
   debug(`SKIP_TG_AUTH: ${process.env.SKIP_TG_AUTH}`);
