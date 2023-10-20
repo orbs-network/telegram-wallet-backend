@@ -57,7 +57,9 @@ if (process.env.NODE_ENV === "development") {
   });
 }
 
-app.listen(process.env.PORT ?? 3000, () => {
+const port = process.env.PORT ?? 3000;
+
+app.listen(port, () => {
   debug(`Wallet backend listening on port ${port}`);
   debug(`ALCHEMY_URL: ${process.env.ALCHEMY_URL}`);
   debug(`SKIP_TG_AUTH: ${process.env.SKIP_TG_AUTH}`);
