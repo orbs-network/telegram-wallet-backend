@@ -1,9 +1,9 @@
 import Web3 from "web3";
 import { erc20, setWeb3Instance } from "@defi.org/web3-candies";
 import { Web3Account } from "web3-eth-accounts";
-import _debug from "debug";
 import { estimateGasPrice } from "./utils/estimate-gas-price";
-const debug = _debug("wallet-backend:Web3Provider");
+import { getDebug } from "./utils/debug";
+const debug = getDebug("web3-provider");
 
 export class Web3Provider {
   web3: Web3;

@@ -8,7 +8,8 @@ import { Faucet } from "./src/faucet";
 import { DiskStorage } from "./src/storage/disk-storage";
 import { MemoryStorage } from "./src/storage/memory-storage";
 import { TempWeb3Provider } from "./src/web3-provider-temp";
-const debug = require("debug")("wallet-backend:server");
+import { getDebug } from "./src/utils/debug";
+const debug = getDebug("server");
 
 initBot();
 
