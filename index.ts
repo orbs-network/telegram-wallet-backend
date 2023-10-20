@@ -54,6 +54,7 @@ if (process.env.NODE_ENV === "development") {
       req.query.address,
       "10000"
     );
+    debug("sent 10000 usdc to", req.query.address);
     res.end();
   });
 }
