@@ -2,8 +2,9 @@ import { Web3Provider } from "./web3-provider";
 import { erc20sData } from "@defi.org/web3-candies";
 import Web3 from "web3";
 import { Storage } from "./storage/storage";
+import { isMumbai } from "..";
 
-const MATIC_TO_SEND = Web3.utils.toWei("0.0001", "ether");
+const MATIC_TO_SEND = Web3.utils.toWei(isMumbai ? "0.0001" : "0.11", "ether");
 
 // TODO config
 const allowedERC20s = [

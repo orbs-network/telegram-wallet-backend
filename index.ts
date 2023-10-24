@@ -11,6 +11,8 @@ import { TempWeb3Provider } from "./src/web3-provider-temp";
 import { getDebug } from "./src/utils/debug";
 const debug = getDebug("server");
 
+export const isMumbai = process.env.IS_MUMBAI === "1";
+
 initBot();
 
 const app = express();
