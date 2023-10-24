@@ -2,8 +2,8 @@ import { token } from "../telegram-bot";
 
 const _crypto = require("crypto");
 
-// const MAX_ALLOWED_TTL_MS = 3600 * 1000;
-const MAX_ALLOWED_TTL_MS = 3600 * 1000 * 24;
+let MAX_ALLOWED_TTL_MS = 60 * 60 * 1000;
+if (process.env.NODE_ENV === "development") MAX_ALLOWED_TTL_MS *= 24;
 
 export function verifyData(botToken: string, queryString: string) {
   const params = new URLSearchParams(queryString);

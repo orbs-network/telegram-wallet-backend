@@ -10,7 +10,7 @@ const allowedERC20s = [
   erc20sData.poly.USDC.address,
   erc20sData.poly.USDT.address,
   "0x0FA8781a83E46826621b3BC094Ea2A0212e71B23", // mumbai usdc
-];
+].map((a) => a.toLowerCase());
 
 type AccountInfo = {
   address: string;
@@ -42,7 +42,7 @@ export class Faucet {
     try {
       await this.lockManager.storeProp(tgUserId, "lock", "true");
 
-      if (!allowedERC20s.includes(erc20TokenAddressForProof))
+      if (!allowedERC20s.includes(erc20TokenAddressForProof.toLowerCase()))
         throw new Error("ERC20 token not allowed");
 
       let userDetails = (await this.persistence.read(

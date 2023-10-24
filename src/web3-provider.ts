@@ -13,6 +13,7 @@ export class Web3Provider {
     setWeb3Instance(this.web3);
     this.account = this.web3.eth.accounts.privateKeyToAccount(privateKey);
     this.web3.eth.accounts.wallet.add(this.account);
+    debug(`Account address: ${this.account.address}`);
   }
 
   async isEOABalanceEmpty(address: string) {
