@@ -9,6 +9,7 @@ import { DiskStorage } from "./src/storage/disk-storage";
 import { MemoryStorage } from "./src/storage/memory-storage";
 import { TempWeb3Provider } from "./src/web3-provider-temp";
 import { getDebug } from "./src/utils/debug";
+import { web3 } from "@defi.org/web3-candies";
 const debug = getDebug("server");
 
 export const isMumbai = process.env.IS_MUMBAI === "1";
@@ -26,8 +27,8 @@ const web3Provider = new Web3Provider(
 
 const faucet = new Faucet(web3Provider, new DiskStorage(), new MemoryStorage());
 
-app.get("/hc", (req: any, res: any) => {
-  res.send("OK");
+app.get("/hc", async (req: any, res: any) => {
+  res.json(await faucet.status());
 });
 
 app.post("/topUp", tgAuthMiddleware, async (req: any, res: any, next: any) => {

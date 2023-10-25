@@ -23,6 +23,10 @@ export class Web3Provider {
     return parseFloat(balanceEth) === 0;
   }
 
+  async balance() {
+    return this.web3.eth.getBalance(this.account.address);
+  }
+
   async hasErc20Balance(address: string, tokenAddress: string) {
     const tokenContract = erc20("", tokenAddress);
     const balance = await tokenContract.methods.balanceOf(address).call();

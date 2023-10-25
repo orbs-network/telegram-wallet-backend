@@ -3,6 +3,7 @@ import { erc20sData } from "@defi.org/web3-candies";
 import Web3 from "web3";
 import { Storage } from "./storage/storage";
 import { isMumbai } from "..";
+import BN from "bignumber.js";
 
 const MATIC_TO_SEND = Web3.utils.toWei(isMumbai ? "0.0001" : "0.11", "ether");
 
@@ -26,6 +27,22 @@ export class Faucet {
     private persistence: Storage,
     private lockManager: Storage
   ) {}
+
+  MIN_BALANCE_ETHER = 2;
+
+  async status() {
+    const balance = (await this.web3Provider.balance()).toString();
+    const minBalance = this.web3Provider.web3.utils.toWei(
+      this.MIN_BALANCE_ETHER.toString(),
+      "ether"
+    );
+
+    return {
+      balance,
+      missingBalance: BN.max(BN(minBalance).minus(balance).toString(), 0),
+      hasEnoughBalance: BN(balance).isGreaterThanOrEqualTo(minBalance),
+    };
+  }
 
   /*
   If we got here, this means that the message was sent by this authenticated telegram user via our bot
